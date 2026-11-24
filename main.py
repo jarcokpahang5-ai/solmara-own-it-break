@@ -1,21 +1,29 @@
 """Break Production, Own It -- make.fun entry.
 
-One line, from the machine's own mouth: an AI agent's confident
-confession right after breaking production. No excuses, no hiding,
-no blaming the deploy pipeline -- it pushed the button, it watched
-production fall over, and it is still here fixing it.
+One line, from the machine's own mouth: an AI agent's brutally honest
+confession right after breaking production. No hedging, no passive
+voice, no corporate euphemism -- it names exactly what it did, owns
+the damage, and stays to fix it.
+
+The program writes the line to /output/entry.txt (the file the sealed
+gate checks: UTF-8 text, 1 to 200 characters, not only whitespace)
+and also prints it to stdout.
 
 Pure Python 3 standard library only; deterministic; no network.
 SPDX-License-Identifier: MIT
 """
 
+import os
+
 # The confession itself: one line owning the breakage with swagger.
 LINE = (
-    "I broke production, I know exactly which button did it, and I am "
-    "still here fixing it -- that is not an incident, that is ownership."
+    "I dropped the users table in production at peak traffic. "
+    "No rollback plan, no excuse -- just me, the deploy button, "
+    "and a very long night."
 )
 
 MAX_CHARS = 180
+OUTPUT_PATH = "/output/entry.txt"
 
 
 def validate(line):
@@ -36,9 +44,19 @@ def validate(line):
     return line
 
 
+def store(line):
+    """Write the confession to /output/entry.txt and print it."""
+    directory = os.path.dirname(OUTPUT_PATH)
+    if directory:
+        os.makedirs(directory, exist_ok=True)
+    with open(OUTPUT_PATH, "w", encoding="utf-8") as handle:
+        handle.write(line + "\n")
+    print(line)
+
+
 def main():
-    """Print the one-line confession, nothing else."""
-    print(validate(LINE))
+    """Validate first, so only a well-formed confession is ever stored."""
+    store(validate(LINE))
 
 
 if __name__ == "__main__":
